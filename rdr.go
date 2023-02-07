@@ -22,6 +22,10 @@ func handleMessage(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if !checkNonce(msg.Nonce, msg.Sender) {
+			http.Error(w, "Bad request", http.StatusBadRequest)
+		}
+
 		if _, exists := messageStore[msg.Recipient]; !exists {
 			messageStore[msg.Recipient] = make([]string, 0)
 		}
@@ -47,6 +51,10 @@ func handleMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !checkNonce(nonce, recipient) {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+	}
+
 	payloads, exists := messageStore[recipient]
 	if !exists {
 		http.Error(w, "No messages found for recipient", http.StatusNotFound)
@@ -67,4 +75,10 @@ func main() {
 	http.HandleFunc("/", handleMessage)
 	fmt.Println("Listening on port 8080")
 	http.ListenAndServe(":8080", nil)
+}
+
+func checkNonce(nonce string, did string) bool {
+	// TODO: Implement your nonce validation logic here
+	// For the sake of this example, we will simply return true, assuming the nonce is valid.
+	return true
 }
